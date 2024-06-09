@@ -4,13 +4,18 @@
 #include <cassert>
 #include <map>
 
-enum cmd { exit_cmd, cd, echo, invalid };
+enum cmd {
+  exit_cmd, echo, type,
+  cd,
+  invalid
+};
 
 const static std::map<std::string, cmd> enum_map_cmd = {
     {"exit", exit_cmd},
     {"cd", cd},
     {"echo", echo},
-    {"",invalid}
+    {"type",type},
+    { "",invalid }
 };
 
 cmd get_command_enum(const std::string& command) {
@@ -65,6 +70,15 @@ int main() {
       break;
     }
     case cd: {
+      break;
+    }
+    case type: {
+      if (get_command_enum(command[1]) < 3)
+        std::cout << command[1] << " is a shell builtin\n";
+      else if (get_command_enum(command[1]) == invalid)
+        std::cout << command[1] << " not found\n";
+      else
+        std::cout << command[1] << '\n';
       break;
     }
     default:
