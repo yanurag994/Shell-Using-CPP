@@ -77,8 +77,10 @@ int main() {
         std::cout << command[1] << " is a shell builtin\n";
       else if (get_command_enum(command[1]) == invalid)
         std::cout << command[1] << " not found\n";
-      else
-        std::cout << command[1] << '\n';
+      else {
+        char* cmd_path = getenv(command[1].c_str());
+        std::cout << command[1] << ((cmd_path != NULL) ? getenv(cmd_path) : "command not found") << '\n';
+      }
       break;
     }
     default:
