@@ -17,14 +17,15 @@ int main() {
   //std::cout << "Logs from your program will appear here!\n";
 
   // Uncomment this block to pass the first stage
-  std::cout << "$ ";
-
-  std::string input;
-  std::getline(std::cin, input);
-  if (is_supported(input))
-  {
-    //To be implemented
+  while (true) {
+    std::cout << "$ ";
+    std::string input;
+    std::getline(std::cin, input);
+    if (is_supported(input))
+    {
+      //To be implemented
+    }
+    else
+      std::cout << input << ": command not found\n";
   }
-  else
-    std::cout << input << ": command not found\n";
 }
