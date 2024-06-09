@@ -2,11 +2,23 @@
 #include <vector>
 #include <algorithm>
 #include <cassert>
+#include <map>
 
-const bool is_supported(const std::string& command)
-{
-  const std::vector<std::string> supported_commands = { "cd","echo","exit" };
-  return std::binary_search(supported_commands.begin(), supported_commands.end(), command);
+enum cmd { exit_cmd, cd, echo, invalid };
+
+const static std::map<std::string, cmd> enum_map_cmd = {
+    {"exit", exit_cmd},
+    {"cd", cd},
+    {"echo", echo},
+    {"",invalid}
+};
+
+cmd get_command_enum(const std::string& command) {
+  auto it = enum_map_cmd.find(command);
+  if (it != enum_map_cmd.end()) {
+    return it->second;
+  }
+  return invalid;
 }
 
 std::vector<std::string> parse_command(const std::string& input) {
@@ -40,13 +52,26 @@ int main() {
     assert(input.size() > 0);
     std::vector<std::string> command = parse_command(input);
     assert(command.size() > 0);
-    if (is_supported(command[0]))
-    {
-      if (command[0] == "exit") return 0;
-
-      //To be implemented
+    switch (get_command_enum(command[0])) {
+    case exit_cmd: {
+      return 0;
+      break;
     }
-    else
+    case echo: {
+      for (size_t idx = 1;idx < command.size() - 1;idx++) {
+        std::cout << command[idx] << ' ';
+      }
+      std::cout << command[command.size() - 1] << '\n';
+      break;
+    }
+    case cd: {
+      break;
+    }
+    default:
+    {
       std::cout << command[0] << ": command not found\n";
+      break;
+    }
+    }
   }
 }
