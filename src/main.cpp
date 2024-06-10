@@ -3,19 +3,17 @@
 #include <algorithm>
 #include <cassert>
 #include <map>
+#include <filesystem>
+#include <string_view>
 
 enum cmd {
-  exit_cmd, echo, type,
-  cd,
-  invalid
+  exit_cmd, echo, type, non_builtIn
 };
 
 const static std::map<std::string, cmd> enum_map_cmd = {
     {"exit", exit_cmd},
-    {"cd", cd},
     {"echo", echo},
     {"type",type},
-    { "",invalid }
 };
 
 cmd get_command_enum(const std::string& command) {
@@ -23,7 +21,39 @@ cmd get_command_enum(const std::string& command) {
   if (it != enum_map_cmd.end()) {
     return it->second;
   }
-  return invalid;
+  return non_builtIn;
+}
+
+std::string get_command_path(const std::string& command_str) {
+  const char* path_env = getenv("PATH");
+  if (!path_env) {
+    throw std::runtime_error("PATH environment variable not found");
+  }
+
+  std::string paths(path_env);
+  size_t p_idx = 0, c_idx;
+  std::string_view path;
+
+  while ((c_idx = paths.find(':', p_idx)) != std::string::npos) {
+    path = std::string_view(paths.c_str() + p_idx, c_idx - p_idx);
+    for (const auto& entry : std::filesystem::directory_iterator(path)) {
+      if (entry.path().filename() == command_str) {
+        return entry.path().string();
+      }
+    }
+    p_idx = c_idx + 1;
+  }
+
+  // Check the last part of PATH if there are no more colons
+  if (p_idx < paths.length()) {
+    path = std::string_view(paths.c_str() + p_idx);
+    for (const auto& entry : std::filesystem::directory_iterator(path)) {
+      if (entry.path().filename() == command_str) {
+        return entry.path().string();
+      }
+    }
+  }
+  return "";
 }
 
 std::vector<std::string> parse_command(const std::string& input) {
@@ -63,24 +93,25 @@ int main() {
       break;
     }
     case echo: {
-      for (size_t idx = 1;idx < command.size() - 1;idx++) {
-        std::cout << command[idx] << ' ';
-      }
-      std::cout << command[command.size() - 1] << '\n';
-      break;
-    }
-    case cd: {
+      for (size_t idx = 1;idx < command.size();idx++)
+        std::cout << command[idx] << (idx + 1 < command.size() ? ' ' : '\n');
       break;
     }
     case type: {
-      if (get_command_enum(command[1]) < 3)
+      if (get_command_enum(command[1]) != non_builtIn)
         std::cout << command[1] << " is a shell builtin\n";
-      else if (get_command_enum(command[1]) == invalid)
-        std::cout << command[1] << " not found\n";
       else {
-        char* cmd_path = getenv(command[1].c_str());
-        std::cout << command[1] << ((cmd_path != NULL) ? getenv(cmd_path) : "command not found") << '\n';
+        std::string exec_path = get_command_path(command[1]);
+        if (exec_path != "")
+          std::cout << command[1] << " is " << exec_path << '\n';
+        else
+          std::cout << command[1] << ": not found\n";
       }
+      break;
+    }
+    case non_builtIn:
+    {
+      std::cout << command[0] << ": command not found\n";
       break;
     }
     default:
