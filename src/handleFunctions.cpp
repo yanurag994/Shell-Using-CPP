@@ -28,10 +28,21 @@ void handlePwd() {
 }
 
 void handleCd(const std::string& argument) {
-    if (argument[0] == '/' && std::filesystem::exists(argument))
-        WORKING_DIR = argument;
-    else
-        std::cout << argument << ": No such file or directory\n";
+    if (argument[0] == '/') {
+        if (std::filesystem::is_directory(argument))
+            WORKING_DIR = argument;
+        else
+            std::cout << argument << ": No such file or directory\n";
+    }
+    else {
+        std::filesystem::path new_path = std::filesystem::canonical(WORKING_DIR + '/' + argument);
+        if (std::filesystem::is_directory(new_path)) {
+            WORKING_DIR = new_path;
+        }
+        else {
+            std::cout << argument << ": No such file or directory\n";
+        }
+    }
 }
 
 void handleExecutable(const std::string& command, const std::string& arguments)
