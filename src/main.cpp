@@ -43,6 +43,11 @@ int main() {
         handlePwd();
         break;
       }
+      case cd:
+      {
+        handleCd(command_args.second);
+        break;
+      }
       case executable:
       {
         handleExecutable(command_args.first, command_args.second);

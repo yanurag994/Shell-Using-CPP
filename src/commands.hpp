@@ -2,14 +2,15 @@
 #include <string>
 
 enum cmd {
-    exit_cmd, echo, type, pwd, executable
+    exit_cmd, echo, type, pwd, cd, executable
 };
 
 const static std::map<std::string, cmd> enum_map_cmd = {
     {"exit", exit_cmd},
     {"echo", echo},
     {"type",type},
-    {"pwd",pwd}
+    {"pwd",pwd},
+    {"cd",cd}
 };
 
 std::pair<std::string, std::string> parse_command(const std::string&);

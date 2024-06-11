@@ -27,6 +27,13 @@ void handlePwd() {
     std::cout << WORKING_DIR << '\n';
 }
 
+void handleCd(const std::string& argument) {
+    if (argument[0] == '/' && std::filesystem::exists(argument))
+        WORKING_DIR = argument;
+    else
+        std::cout << argument << ": No such file or directory\n";
+}
+
 void handleExecutable(const std::string& command, const std::string& arguments)
 {
     std::string exec_path = get_command_path(command);
